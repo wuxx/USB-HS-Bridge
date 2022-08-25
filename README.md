@@ -14,7 +14,13 @@ USB-HS-Bridge is a debug tool made by MuseLab based on WCH's CH347 With USB 2.0 
 
 
 <div align=center>
-<img src="https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/ch347-1.jpg" width = "600" alt="" align=center />
+<img src="https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/1.jpg" width = "500" alt="" align=center />
+</div>
+<div align=center>
+<img src="https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/2.jpg" width = "500" alt="" align=center />
+</div>
+<div align=center>
+<img src="https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/3.jpg" width = "500" alt="" align=center />
 </div>
 
 # Work Mode
