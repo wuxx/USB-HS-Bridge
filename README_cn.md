@@ -11,15 +11,7 @@ USB-HS-Bridge
 
 # 介绍
 USB-HS-Bridge 是MuseLab基于沁恒CH347制作的调试工具，USB 2.0高速设备，支持 USB转I2C/SPI/UART/JTAG/GPIO, 可用于调试操作多种外设传感器以及MCU、FPGA的调试下载等。
-<div align=center>
-<img src="https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/1.jpg" width = "500" alt="" align=center />
-</div>
-<div align=center>
-<img src="https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/2.jpg" width = "500" alt="" align=center />
-</div>
-<div align=center>
-<img src="https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/3.jpg" width = "500" alt="" align=center />
-</div>
+![1](https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/3.jpg)
 
 # 工作模式
 CH347支持4种工作模式，分别由引脚DTR1和RTS1控制，说明如下
