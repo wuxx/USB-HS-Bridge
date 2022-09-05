@@ -40,9 +40,7 @@ the JTAG is enabled in mode-3, include TCK/TMS/TDI/TDO/TRST, support fast-mode a
 there is a test demo under doc/CH347EVT/EVT/TOOLS/CH347Demo/ to test UART/I2C/SPI/JTAG/GPIO
 
 # Product Link
-[USB-HS-Bridge Board](https://www.aliexpress.com/item/1005004685449797.html?spm=5261.ProductManageOnline.0.0.158c4edffnRuaN
-
-)
+[USB-HS-Bridge Board](https://www.aliexpress.com/item/1005004685449797.html?spm=5261.ProductManageOnline.0.0.158c4edffnRuaN)
 
 # Reference
 ### WCH
