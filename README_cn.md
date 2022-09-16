@@ -37,6 +37,7 @@ JTAG为标准4线JTAG协议，最高频率可达18Mbit/s, 包括TCK/TMS/TDI/TDO�
 
 # 如何使用
 官方的demo程序位于doc/CH347EVT/EVT/TOOLS/CH347Demo/, 可用于测试验证各个接口的基本功能，另外也可参考手册实现自定义的应用程序。
+openocd 的支持请参考 https://github.com/WCHSoftGroup/ch347。
 
 # 产品链接
 [USB-HS-Bridge Board](https://item.taobao.com/item.htm?spm=a1z10.3-c.w4002-21349689064.10.72f8773dlRkUhZ&id=682518391864)
@@ -44,3 +45,6 @@ JTAG为标准4线JTAG协议，最高频率可达18Mbit/s, 包括TCK/TMS/TDI/TDO�
 # Reference
 ### WCH
 https://www.wch.cn/
+### Openocd patch for CH347
+https://github.com/WCHSoftGroup/ch347
+

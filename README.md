@@ -37,7 +37,9 @@ the SPI(note: SPI Master with 4-line) is enabled in mode-1/2, there are two CS p
 the JTAG is enabled in mode-3, include TCK/TMS/TDI/TDO/TRST, support fast-mode and bit-bang mode, uhe fastest speed up to 18Mbit/s.
 
 # How to Use
-there is a test demo under doc/CH347EVT/EVT/TOOLS/CH347Demo/ to test UART/I2C/SPI/JTAG/GPIO
+there is a test demo under doc/CH347EVT/EVT/TOOLS/CH347Demo/ to test UART/I2C/SPI/JTAG/GPIO.
+for openocd support,  please reference WCH official repo https://github.com/WCHSoftGroup/ch347
+
 
 # Product Link
 [USB-HS-Bridge Board](https://www.aliexpress.com/item/1005004685449797.html?spm=5261.ProductManageOnline.0.0.158c4edffnRuaN)
@@ -45,3 +47,5 @@ there is a test demo under doc/CH347EVT/EVT/TOOLS/CH347Demo/ to test UART/I2C/SP
 # Reference
 ### WCH
 https://www.wch.cn/
+### Openocd Patch for CH347
+https://github.com/WCHSoftGroup/ch347
