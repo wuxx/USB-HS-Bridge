@@ -14,7 +14,7 @@ USB-HS-Bridge 是MuseLab基于沁恒CH347T/CH347F制作的调试工具，USB 2.0
 ![1](https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/1.jpg)
 
 # CH347T
-CH347支持4种工作模式，分别由引脚DTR1和RTS1控制，说明如下
+由于CH347T没有足够的引脚，所以在上电启动的时候需要使用DTR1和RTS1进行模式的配置
 mode| DTR1 | RTS1 | detail | 
 ----|------|------|--------|
 0   |  1   |  1   | UART0 + UART1 |

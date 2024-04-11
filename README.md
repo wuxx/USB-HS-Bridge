@@ -14,7 +14,7 @@ USB-HS-Bridge is a debug tool made by MuseLab based on WCH's CH347T/CH347F With 
 ![1](https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/1.jpg)
 
 # CH347T
-the work mode of CH347T is configured by DTR1 and RTS1  
+Since CH347T does not have enough pins, DTR1 and RTS1 need to be used to configure the mode when powering up.
 mode| DTR1 | RTS1 | detail | 
 ----|------|------|--------|
 0   |  1   |  1   | UART0 + UART1 |
