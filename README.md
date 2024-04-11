@@ -10,17 +10,20 @@ USB-HS-Bridge
 
 
 # USB-HS-Bridge Introduce
-USB-HS-Bridge is a debug tool made by MuseLab based on WCH's CH347 With USB 2.0 High Speed, it support USB-to-I2C/SPI/UART/JTAG/GPIO, can be used to operate various devices include MCU/DSP/FPGA/CPLD/EEPROM/SPI-Flash/LCD...
-![1](https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/3.jpg)
+USB-HS-Bridge is a debug tool made by MuseLab based on WCH's CH347T/CH347F With USB 2.0 High Speed, it support USB-to-I2C/SPI/UART/JTAG/GPIO, can be used to operate various devices include MCU/DSP/FPGA/CPLD/EEPROM/SPI-Flash/LCD...
+![1](https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/1.jpg)
 
-# Work Mode
-the work mode of chip is configured by DTR1 and RTS1  
+# CH347T
+the work mode of CH347T is configured by DTR1 and RTS1  
 mode| DTR1 | RTS1 | detail | 
 ----|------|------|--------|
 0   |  1   |  1   | UART0 + UART1 |
 1   |  1   |  0   | UART1 + I2C + SPI (VCP Mode) |
 2   |  0   |  1   | UART1 + I2C + SPI (HID Mode) |
 3   |  0   |  0   | UART1 + JTAG  |
+
+# CH347F
+The package of CH347F is QFN28, which has enough pins, so there is no need to switch the working mode to reuse the pins. UART0/UART1/I2C/SPI/JTAG can be used at the same time. and the IO level is adjustable by switch, the options are 3.3V/2.5V/1.8V/Vref.
 
 # Features
 ## USB-to-UART
