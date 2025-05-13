@@ -1,22 +1,22 @@
 /*****************************************************************************
-**                      Copyright  (C)  WCH  2001-2023                      **
+**                      Copyright  (C)  WCH  2001-2025                      **
 **                      Web:  http://wch.cn                                 **
 ******************************************************************************
 Abstract:
-  基于CH347 SPI接口函数操作FLASH应用示例，FLASH 型号识别、块读、块写、块擦除、FLASH内容读至文件、文件
+  基于CH347/CH339W SPI接口函数操作FLASH应用示例，FLASH 型号识别、块读、块写、块擦除、FLASH内容读至文件、文件
   写入FLASH、速度测试等操作函数。SPI传输速度可达2M字节/S
 
 Environment:
     user mode only,VC6.0 and later
 Notes:
-  Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+  Copyright (c) 2025 Nanjing Qinheng Microelectronics Co., Ltd.
 Revision History:
   4/3/2022: TECH30
 --*/
 
 #include "Main.h"
 
-#define DevID_Mode1_2 "USB\\VID_1A86&PID_55D"
+#define DevID_Mode1_2 "USB\\VID_1A86&PID_55"
 
 extern HINSTANCE AfxMainIns; //进程实例
 extern ULONG Flash_Sector_Count; // FLASH芯片扇区数 
@@ -72,7 +72,7 @@ BOOL Flash_InitSpi()
 	SpiCfg.iMode = (UCHAR)SendDlgItemMessage(FlashEepromDbgHwnd,IDC_SpiCfg_Mode,CB_GETCURSEL,0,0);
 	SpiCfg.iClock = (UCHAR)SendDlgItemMessage(FlashEepromDbgHwnd,IDC_SpiCfg_Clock,CB_GETCURSEL,0,0);
 	SpiCfg.iByteOrder = 1; //MSB
-	SpiCfg.iSpiOutDefaultData = 0Xff;
+	SpiCfg.iSpiOutDefaultData = 0xFF;
 
 	RetVal = CH347SPI_Init(DevIndex,&SpiCfg);    //设置SPI
 	CH347SPI_SetChipSelect(DevIndex,0x0001,0,0,0,0); //使能并启用CS1作为片选信号
@@ -391,18 +391,6 @@ DWORD WINAPI FlashRWSpeedTest(LPVOID lpParameter)
 	}
 	TestLen = FileSize;
 	BT = GetCurrentTimerVal();
-	/*
-	for(i=0;i<TC;i++)
-	{
-		RetVal = FLASH_Erase_Sector(FlashAddr+i*Flash_Sector_Size);
-		//RetVal = FLASH_Erase_Block(FlashAddr+i*32768);		
-		if(!RetVal )
-		{
-			DbgPrint("  FLASH_Erase_Sector[%X] failure",i);
-			break;
-		}
-	}
-	*/
 	RetVal = FLASH_Erase_Full();
 	UsedT = (GetCurrentTimerVal()-BT)/1000;
 	if (g_isChinese) 
@@ -908,6 +896,8 @@ Exit:
 		CloseHandle(hFile);
 	if(FileBuf!=NULL)
 		free(FileBuf);
+	if(RBuf!=NULL)
+		free(RBuf);
 
 	if (g_isChinese)
 		DbgPrint("*>>*FLASH验证%s",RetVal?"完成":"失败");

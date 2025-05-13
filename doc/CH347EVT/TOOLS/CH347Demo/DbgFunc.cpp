@@ -30,7 +30,7 @@ ULONG AfxDbgI = 0;
 //输出格式化字符串,用dbgview软件接收
 VOID  DbgPrint(LPCTSTR lpFormat,...)
 {   
-   CHAR TextBufferTmp[10240]="";
+   CHAR TextBufferTmp[102400]="";
    {
 	   SYSTEMTIME lpSystemTime;
 	   GetLocalTime(&lpSystemTime);

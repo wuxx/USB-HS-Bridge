@@ -1,17 +1,18 @@
 /*****************************************************************************
-**                      Copyright  (C)  WCH  2001-2023                      **
+**                      Copyright  (C)  WCH  2001-2025                      **
 **                      Web:  http://wch.cn                                 **
 ******************************************************************************/
-// USB总线接口芯片CH341/7并口应用层接口库,CH347基于480Mbps高速USB总线扩展UART/SPI/I2C/JTAG/SWD
-// CH347-DLL  V1.2
+// USB总线接口芯片CH341/7并口应用层接口库,CH347/9基于480Mbps高速USB总线扩展UART/SPI/I2C/JTAG/SWD
+// CH346基于480Mbps高速USB总线扩展UART/SPI SLAVE,UART/PARALLEL SLAVE
+// CH347-DLL  V1.4
 // 运行环境: Windows 98/ME, Windows 2000/XP, WIN7/8/10/11,and later.
-// support USB chip: CH341, CH341A,CH347
-// USB => Parallel, I2C, SPI, JTAG, SWD, UART ...
+// support USB chip: CH341, CH341A,CH347,CH339W
+// USB => Parallel, I2C, SPI, JTAG, SWD, PARALLEL,UART ...
 //Notes:
-//Copyright (C) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+//Copyright (C) 2025 Nanjing Qinheng Microelectronics Co., Ltd.
 
 
-//
+
 #ifndef		_CH347_DLL_H
 #define		_CH347_DLL_H
 
@@ -158,27 +159,28 @@ typedef	struct	_WIN32_COMMAND {				// 定义WIN32命令接口结构
 #define		MAX_DEVICE_ID_SIZE		64			// 设备ID的最大字符数
 #endif _CH341_DLL_H
 
-//驱动接口
+// 驱动接口
 #define CH347_USB_VENDOR   0
 #define CH347_USB_HID      2
 #define CH347_USB_VCP      3
 
-//CH347_USB_VENDOR支持CH341/7
-#define CHIP_TYPE_CH341    0
-#define CHIP_TYPE_CH347    1
-#define CHIP_TYPE_CH347F   2
-#define CHIP_TYPE_CH347T   CHIP_TYPE_CH347
+// CH347_USB_VENDOR支持CH341/CH347T/CH347F/CH339W
+#define CHIP_TYPE_CH341  0
+#define CHIP_TYPE_CH347  1
+#define CHIP_TYPE_CH347F 2
+#define CHIP_TYPE_CH339W 3
+#define CHIP_TYPE_CH347T CHIP_TYPE_CH347
 
-//芯片功能接口类型
+// 芯片功能接口类型
 #define CH347_FUNC_UART          0
 #define CH347_FUNC_SPI_IIC       1
 #define CH347_FUNC_JTAG_IIC      2
-#define CH347_FUNC_JTAG_IIC_SPI  3 //CH347F
+#define CH347_FUNC_JTAG_IIC_SPI  3		// CH347F同时支持SPI\I2C\JTAG接口
 
-#define DEFAULT_READ_TIMEOUT  500  //默认读超时毫秒数
-#define DEFAULT_WRITE_TIMEOUT 500  //默认写超时毫秒数
+#define DEFAULT_READ_TIMEOUT	500		// 默认读超时毫秒数
+#define DEFAULT_WRITE_TIMEOUT	500		// 默认写超时毫秒数
 
-#define		mCH347_PACKET_LENGTH	512		// CH347支持的数据包的长度
+#define	mCH347_PACKET_LENGTH	512		// CH347支持的数据包的长度
 
 #pragma pack(1) 
 
@@ -201,10 +203,10 @@ typedef struct _SPI_CONFIG{
 typedef struct _DEV_INFOR{
 	UCHAR    iIndex;                 // 当前打开序号
 	UCHAR    DevicePath[MAX_PATH];   // 设备链接名,用于CreateFile
-	UCHAR    UsbClass;               // 驱动类别 0:CH347_USB_CH341, 2:CH347_USB_HID,3:CH347_USB_VCP
-	UCHAR    FuncType;               // 功能类别 0:CH347_FUNC_UART,1:CH347_FUNC_SPI_I2C,2:CH347_FUNC_JTAG_I2C
+	UCHAR    UsbClass;               // 驱动类别 0:CH347_USB_CH341, 2:CH347_USB_HID, 3:CH347_USB_VCP
+	UCHAR    FuncType;               // 功能类别 0:CH347_FUNC_UART, 1:CH347_FUNC_SPI_I2C, 2:CH347_FUNC_JTAG_I2C, 3:CH347_FUNC_JTAG_IIC_SPI
 	CHAR     DeviceID[64];           // USB\VID_xxxx&PID_xxxx
-	UCHAR    ChipMode;               // 芯片工作模式,0:Mode0(UART0/1); 1:Mode1(Uart1+SPI+I2C); 2:Mode2(HID Uart1+SPI+I2C) 3:Mode3(Uart1+Jtag+IIC) 4:CH347F(Uart*2+Jtag/SPI/IIC)
+	UCHAR    ChipMode;               // 芯片工作模式,0:Mode0(UART0/1); 1:Mode1(Uart1+SPI+I2C); 2:Mode2(HID Uart1+SPI+I2C) 3:Mode3(Uart1+Jtag) 4:CH347F(Uart*2+Jtag/SPI/IIC)
 	HANDLE   DevHandle;              // 设备句柄
 	USHORT   BulkOutEndpMaxSize;     // 批量上传端点大小
 	USHORT   BulkInEndpMaxSize;      // 批量下传端点大小
@@ -225,15 +227,20 @@ typedef struct _DEV_INFOR{
 
 // CH347各模式公用函数,支持CH347所有模式下的打开、关闭、USB读、USB写，包含HID
 //打开USB设备
-HANDLE WINAPI CH347OpenDevice(ULONG DevI);
+HANDLE WINAPI CH347OpenDevice(ULONG DevI);	// 指定设备序号
 
 //关闭USB设备
-BOOL WINAPI CH347CloseDevice(ULONG iIndex);
+BOOL WINAPI CH347CloseDevice(ULONG iIndex);	// 指定设备序号
 
-//获取设备信息
-BOOL WINAPI CH347GetDeviceInfor(ULONG iIndex,mDeviceInforS *DevInformation);
+// 获取设备USB序列号
+BOOL WINAPI CH347GetSerialNumber(ULONG iIndex,				// 指定设备序号
+								 PUCHAR iSerialNumberStr);	// 指向获取到的设备序列号
 
-// 获取CH347芯片类型:CHIP_TYPE_CH347T/CHIP_TYPE_CH347F
+// 获取设备信息
+BOOL WINAPI CH347GetDeviceInfor(ULONG iIndex,					// 指定设备序号
+								mDeviceInforS *DevInformation);	// 指向获取到的设备信息
+
+// 获取CH347芯片类型:0:CHIP_TYPE_CH341；1:CHIP_TYPE_CH347/CHIP_TYPE_CH347T,2:CHIP_TYPE_CH347F；3:CHIP_TYPE_CH339W
 UCHAR	WINAPI	CH347GetChipType(ULONG			iIndex );  // 指定设备序号
 
 // 获取驱动版本、库版本、设备版本、芯片类型(CH341(FS)/CH347HS)
@@ -261,9 +268,9 @@ BOOL	WINAPI	CH347ReadData( ULONG			iIndex,          // 指定设备序号
 							   PULONG			ioLength );		 // 指向长度单元,输入时为准备读取的长度,返回后为实际读取的长度
 
 // 写取USB数据块
-BOOL	WINAPI	CH347WriteData(ULONG			iIndex,      // 指定设备序号
-							   PVOID			iBuffer,     // 指向一个缓冲区,放置准备写出的数据
-							   PULONG			ioLength );  // 指向长度单元,输入时为准备写出的长度,返回后为实际写出的长度
+BOOL	WINAPI	CH347WriteData(ULONG			iIndex,			// 指定设备序号
+							   PVOID			iBuffer,		// 指向一个缓冲区,放置准备写出的数据
+							   PULONG			ioLength );		// 指向长度单元,输入时为准备写出的长度,返回后为实际写出的长度
 
 // 设置USB数据读写的超时
 BOOL	WINAPI	CH347SetTimeout(ULONG			iIndex,         // 指定设备序号
@@ -271,24 +278,26 @@ BOOL	WINAPI	CH347SetTimeout(ULONG			iIndex,         // 指定设备序号
 								ULONG			iReadTimeout ); // 指定USB读取数据块的超时时间,以毫秒mS为单位,0xFFFFFFFF指定不超时(默认值)
 
 /***************SPI********************/
-// SPI控制器初始化
-BOOL	WINAPI	CH347SPI_Init(ULONG iIndex,mSpiCfgS *SpiCfg);
+// SPI控制器初始化	
+BOOL	WINAPI	CH347SPI_Init(ULONG iIndex,			// 指定设备序号
+							  mSpiCfgS *SpiCfg);	// 指向SPI配置结构体
 
-//CH347F设置SPI时钟频率。iSpiSpeedHz= 0=60MHz,  1=30MHz,  2=15MHz,  3=7.5MHz,  4=3.75MHz,  5=1.875MHz,  6=937.5KHz， 7=468.75KHz
-BOOL WINAPI CH347SPI_SetFrequency(ULONG iIndex, ULONG iSpiSpeedHz);
+// 设置SPI时钟频率，调用该接口后需重新调用CH347SPI_Init进行初始化
+BOOL WINAPI CH347SPI_SetFrequency(ULONG iIndex,		 // 指定设备序号
+								  ULONG iSpiSpeedHz);// 设置SPI时钟，单位为HZ
 
-//CH347F设置SPI支持数据位数.
-BOOL WINAPI CH347SPI_SetDataBits(ULONG iIndex,
-								 UCHAR iDataBits); //iDataBits= 0:8bit, 1:16bit
+// 设置SPI数据位数
+BOOL WINAPI CH347SPI_SetDataBits(ULONG iIndex,		// 指定设备序号
+								 UCHAR iDataBits);	// 0=8bit，1=16bit
 
-//获取SPI控制器配置信息
+// 获取SPI控制器配置信息
 BOOL    WINAPI  CH347SPI_GetCfg(ULONG iIndex,mSpiCfgS *SpiCfg);
 
-//设置片选状态,使用前需先调用CH347SPI_Init对CS进行设置
+// 设置片选状态,使用前需先调用CH347SPI_Init对CS进行设置
 BOOL	WINAPI	CH347SPI_ChangeCS(ULONG			iIndex,         // 指定设备序号	
 								  UCHAR         iStatus);       // 0=撤消片选,1=设置片选
 
-//设置SPI片选
+// 设置SPI片选
 BOOL	WINAPI	CH347SPI_SetChipSelect(ULONG			iIndex,            // 指定设备序号
 									   USHORT           iEnableSelect,     // 低八位为CS1，高八位为CS2; 字节值为1=设置CS,为0=忽略此CS设置
 									   USHORT           iChipSelect,       // 低八位为CS1，高八位为CS2;片选输出,0=撤消片选,1=设置片选
@@ -296,14 +305,14 @@ BOOL	WINAPI	CH347SPI_SetChipSelect(ULONG			iIndex,            // 指定设备序号
 									   ULONG            iActiveDelay,      // 低16位为CS1，高16位为CS2;设置片选后执行读写操作的延时时间,单位us
 									   ULONG            iDelayDeactive);   // 低16位为CS1，高16位为CS2;撤消片选后执行读写操作的延时时间,单位us
 
-//SPI4写数据
+// SPI4写数据
 BOOL	WINAPI	CH347SPI_Write(ULONG			iIndex,          // 指定设备序号	
 							   ULONG			iChipSelect,     // 片选控制, 位7为0则忽略片选控制, 位7为1进行片选操作
 							   ULONG			iLength,         // 准备传输的数据字节数	
 							   ULONG			iWriteStep,      // 准备读取的单个块的长度
 							   PVOID			ioBuffer);       // 指向一个缓冲区,放置准备从MOSI写出的数据
 
-//SPI4读数据.无需先写数据，效率较CH347SPI_WriteRead高很多
+// SPI4读数据.无需先写数据，效率较CH347SPI_WriteRead高很多
 BOOL	WINAPI	CH347SPI_Read(ULONG			iIndex,           // 指定设备序号	
 							  ULONG			iChipSelect,      // 片选控制, 位7为0则忽略片选控制, 位7为1进行片选操作
 							  ULONG         oLength,          // 准备发出的字节数
@@ -323,45 +332,46 @@ BOOL	WINAPI	CH347StreamSPI4(ULONG			iIndex,       // 指定设备序号
 								PVOID			ioBuffer );   // 指向一个缓冲区,放置准备从DOUT写出的数据,返回后是从DIN读入的数据
 
 /***************JTAG********************/
-//JTAG接口初始化，设置模式及速度
-BOOL	WINAPI	CH347Jtag_INIT(ULONG iIndex,
-							   UCHAR iClockRate);   //通信速度；有效值为0-5，值越大通信速度越快
+// JTAG接口初始化，设置JTAG通信速度
+BOOL	WINAPI	CH347Jtag_INIT(ULONG iIndex,		// 指定设备序号
+							   UCHAR iClockRate);   // 通信速度；0=468.75KHz,1=937.5KHz,2=1.875MHz,3=3.75MHz,4=7.5MHz,5=15MHz,6=30MHz,7=60MHz
 
-//获取Jtag速度设置
+// 获取Jtag速度设置
 BOOL    WINAPI  CH347Jtag_GetCfg(ULONG iIndex,         // 指定设备序号
-							     UCHAR *ClockRate);    //通信速度；有效值为0-5，值越大通信速度越快
+							     UCHAR *ClockRate);    // 通信速度；有效值为0-7，值越大通信速度越快
 
 
-//改变TMS的值来进行状态切换
+// 改变TMS的值来进行状态切换
 BOOL	WINAPI CH347Jtag_TmsChange(ULONG  iIndex,   // 设备序号
 								   PUCHAR tmsValue, // 进行切换的TMS位值,以字节为单位
 								   ULONG  Step,     // tmsValue内存储的TMS有效位数
 								   ULONG  Skip);    // 有效起始位
 
-//在shift-dr/ir状态进行读写，执行完切至Exit DR/IR
-//状态机:Shift-DR/IR.RW.->Exit DR/IR
+// 在Shift-DR/IR状态进行读写，执行完切至Exit DR/IR
+// 状态机:Shift-DR/IR.RW.->Exit DR/IR
 BOOL   WINAPI  CH347Jtag_IoScan(ULONG   iIndex,    
 							    PUCHAR  DataBits,   //需要进行传输的数据位
 							    ULONG   DataBitsNb, //需要传输数据的位数
 							    BOOL    IsRead);    //是否需要读取数据
 
-//切至shift-dr/ir状态进行读写,执行完成后,如是最后一包，则切至Exit DR/IR;如果不是,则停在Shift-DR/IR
-//状态机:Shift-DR/IR.RW..->[Exit DR/IR]
-BOOL   WINAPI  CH347Jtag_IoScanT(ULONG  iIndex,       // 设备序号
+// 切至Shift-DR/IR状态进行读写,执行完成后,如是最后一包，则切换状态至Exit DR/IR;如果不是,则停在Shift-DR/IR状态
+// 状态机:Shift-DR/IR.RW..->[Exit DR/IR]
+BOOL   WINAPI  CH347Jtag_IoScanT(ULONG  iIndex,       // 指定设备序号
 								 PUCHAR DataBits,     // 需要进行传输的数据位
 								 ULONG  DataBitsNb,   // 需要传输数据的位数
 								 BOOL   IsRead,       // 是否需要读取数据
 								 BOOL   IsLastPkt);   // 是否为最后一包
 
-//CH347 复位Tap状态函数.连续六个以上TCK且TMS为高将可将状态机置为Test-Logic Reset状态
-ULONG	WINAPI  CH347Jtag_Reset(ULONG iIndex);
+// JTAG复位Tap状态函数.连续六个以上TCK且TMS为高将可将状态机置为Test-Logic Reset状态
+ULONG	WINAPI  CH347Jtag_Reset(ULONG iIndex);	// 指定设备序号
 
-//CH347 操作TRST完成硬件复位
-BOOL WINAPI CH347Jtag_ResetTrst(ULONG iIndex, BOOL TRSTLevel);
+// 操作TRST完成硬件复位
+BOOL WINAPI CH347Jtag_ResetTrst(ULONG iIndex,	// 指定设备序号
+								BOOL  iLevel);	// 0=设置为低，1=设置为高
 
-//位带方式JTAG IR/DR数据读写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用CH347Jtag_WriteRead_Fast
-//命令包以4096字节为单位批量读写
-//状态机:Run-Test->Shift-IR/DR..->Exit IR/DR -> Run-Test
+// 位带方式JTAG IR/DR数据读写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用CH347Jtag_WriteRead_Fast
+// 命令包以4096字节为单位批量读写
+// 状态机:Run-Test->Shift-IR/DR..->Exit IR/DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_WriteRead(ULONG			iIndex,           // 指定设备序号
 									BOOL            IsDR,             // =TRUE: DR数据读写,=FALSE:IR数据读写
 									ULONG			iWriteBitLength,  // 写长度,准备写出的长度
@@ -369,8 +379,8 @@ BOOL	WINAPI	CH347Jtag_WriteRead(ULONG			iIndex,           // 指定设备序号
 									PULONG			oReadBitLength,   // 指向长度单元,返回后为实际读取的长度
 									PVOID			oReadBitBuffer ); // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//JTAG IR/DR数据批量读写,用于多字节连续读写。如JTAG固件下载操作。因硬件有4K缓冲区，如先写后读，长度不超过4096字节。缓冲区大小可自行调整
-//状态机:Run-Test->Shift-IR/DR..->Exit IR/DR -> Run-Test
+// JTAG IR/DR数据批量读写,用于多字节连续读写。如JTAG固件下载操作。因硬件有4K缓冲区，如先写后读，长度不超过4096字节。缓冲区大小可自行调整
+// 状态机:Run-Test->Shift-IR/DR..->Exit IR/DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_WriteRead_Fast(ULONG		iIndex,            // 指定设备序号
 										 BOOL       IsDR,              // =TRUE: DR数据读写,=FALSE:IR数据读写
 										 ULONG		iWriteBitLength,   // 写长度,准备写出的长度
@@ -378,9 +388,9 @@ BOOL	WINAPI	CH347Jtag_WriteRead_Fast(ULONG		iIndex,            // 指定设备序号
 										 PULONG		oReadBitLength,    // 指向长度单元,返回后为实际读取的长度
 										 PVOID		oReadBitBuffer );  // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//位带方式JTAG IR/DR数据读写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用CH347Jtag_WriteRead_Fast
-//命令包以4096字节为单位批量读写
-//状态机:Run-Test-> Shift-IR/DR..->Exit IR/DR -> Run-Test
+// 位带方式JTAG IR/DR数据读写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用CH347Jtag_WriteRead_Fast
+// 命令包以4096字节为单位批量读写
+// 状态机:Run-Test-> Shift-IR/DR..->Exit IR/DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_WriteReadEx(ULONG			iIndex,           // 指定设备序号
 									  BOOL			IsInDrOrIr,	      // =TRUE: 在SHIFT-DR/IR状态进行数据交互  ==FALSE: Run-Test->Shift-IR/DR.进行数据交互.->Exit IR/DR -> Run-Test
 									  BOOL          IsDR,             // =TRUE: DR数据读写,=FALSE:IR数据读写
@@ -389,8 +399,8 @@ BOOL	WINAPI	CH347Jtag_WriteReadEx(ULONG			iIndex,           // 指定设备序号
 									  PULONG		oReadBitLength,   // 指向长度单元,返回后为实际读取的长度
 									  PVOID			oReadBitBuffer ); // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//JTAG IR/DR数据批量读写,用于多字节连续读写。如JTAG固件下载操作。因硬件有4K缓冲区，如先写后读，长度不超过4096字节。缓冲区大小可自行调整
-//状态机:Run-Test->Shift-IR/DR..->Exit IR/DR -> Run-Test
+// JTAG IR/DR数据批量读写,用于多字节连续读写。如JTAG固件下载操作。因硬件有4K缓冲区，如先写后读，长度不超过4096字节。缓冲区大小可自行调整
+// 状态机:Run-Test->Shift-IR/DR..->Exit IR/DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_WriteRead_FastEx(ULONG		iIndex,            // 指定设备序号
 										   BOOL		    IsInDrOrIr,	       // =TRUE: 在SHIFT-DR/IR状态进行数据交互  ==FALSE: Run-Test->Shift-IR/DR.进行数据交互.->Exit IR/DR -> Run-Test								
 										   BOOL         IsDR,              // =TRUE: DR数据读写,=FALSE:IR数据读写
@@ -399,64 +409,70 @@ BOOL	WINAPI	CH347Jtag_WriteRead_FastEx(ULONG		iIndex,            // 指定设备序号
 										   PULONG		oReadBitLength,    // 指向长度单元,返回后为实际读取的长度
 										   PVOID		oReadBitBuffer );  // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//切换JTAG状态机
-BOOL WINAPI CH347Jtag_SwitchTapState(UCHAR TapState);
+// 单步切换JTAG状态机，需按照顺序执行
+BOOL WINAPI CH347Jtag_SwitchTapState(UCHAR TapState);		// 指定切换到的状态
+// 0:Test-Logic Reset,1:Run-Test/Idle，2:Run-Test/Idle -> Shift-DR,3:Shift-DR -> Run-Test/Idle
+// 4:Run-Test/Idle -> Shift-IR, 5:Shift-IR -> Run-Test/Idle, 6:Exit1-DR/IR -> Update-DR/IR -> Run-Test/Idle
 
-//JTAG DR写,以字节为单位,用于多字节连续读写。如JTAG固件下载操作。
-//状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
+// 单步切换JTAG状态机,可指定操作设备iIndex
+BOOL WINAPI CH347Jtag_SwitchTapStateEx(ULONG iIndex,		// 指定设备序号
+									   UCHAR TapState);		// 指定切换到的状态
+
+// JTAG DR写,以字节为单位,用于多字节连续读写。如JTAG固件下载操作。
+// 状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_ByteWriteDR(ULONG			iIndex,        // 指定设备序号									
 									  ULONG			iWriteLength,  // 写长度,准备写出的字节长度
 									  PVOID			iWriteBuffer); // 指向一个缓冲区,放置准备写出的数据	
 
-//JTAG DR读,以字节为单位,多字节连续读。
-//状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
+// JTAG DR读,以字节为单位,多字节连续读。
+// 状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_ByteReadDR(ULONG			iIndex,        // 指定设备序号									
 									 PULONG			oReadLength,   // 指向长度单元,返回后为实际读取的字节长度
 									 PVOID			oReadBuffer ); // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//JTAG IR写,以字节为单位,多字节连续写。
-//状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
+// JTAG IR写,以字节为单位,多字节连续写。
+// 状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
 BOOL	WINAPI	CH347Jtag_ByteWriteIR(ULONG			iIndex,        // 指定设备序号									
 									  ULONG			iWriteLength,  // 写长度,准备写出的字节长度
 									  PVOID			iWriteBuffer); // 指向一个缓冲区,放置准备写出的数据										
 
-//JTAG IR读,以字节为单位,多字节连续读写。
-//状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
+// JTAG IR读,以字节为单位,多字节连续读写。
+// 状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
 BOOL	WINAPI	CH347Jtag_ByteReadIR(ULONG			iIndex,         // 指定设备序号									
 									 PULONG			oReadLength,    // 指向长度单元,返回后为实际读取的字节长度
 									 PVOID			oReadBuffer );  // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//位带方式JTAG DR数据写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用USB20Jtag_ByeWriteDR
-//状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
+// 位带方式JTAG DR数据写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用USB20Jtag_ByeWriteDR
+// 状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_BitWriteDR(ULONG			iIndex,             // 指定设备序号									
 									 ULONG    	    iWriteBitLength,    // 指向长度单元,返回后为实际读取的字节长度
 									 PVOID			iWriteBitBuffer );  // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//位带方式JTAG IR数据写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用USB20Jtag_ByteWriteIR
-//状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
+// 位带方式JTAG IR数据写.适用于少量数据的读写。如指令操作、状态机切换等控制类传输。如批量数据传输，建议使用USB20Jtag_ByteWriteIR
+// 状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
 BOOL	WINAPI	CH347Jtag_BitWriteIR(ULONG			iIndex,             // 指定设备序号									
 									 ULONG    	    iWriteBitLength,    // 指向长度单元,返回后为实际读取的字节长度
 									 PVOID			iWriteBitBuffer );  // 指向一个足够大的缓冲区,用于保存读取的数据
 
-//位带方式JTAG IR数据读.适用于少量数据的读写。如指令操作、状态机切换等。如批量数据传输，建议使用USB20Jtag_ByteReadIR
-//状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
+// 位带方式JTAG IR数据读.适用于少量数据的读写。如指令操作、状态机切换等。如批量数据传输，建议使用USB20Jtag_ByteReadIR
+// 状态机:Run-Test->Shift-IR..->Exit IR -> Run-Test
 BOOL	WINAPI	CH347Jtag_BitReadIR(ULONG			iIndex,				// 指定设备序号									
 									PULONG    	oReadBitLength,			// 指向长度单元,返回后为实际读取的字节长度
 									PVOID			oReadBitBuffer );	// 指向一个足够大的缓冲区,用于保存读取的数据
 
-//位带方式JTAG DR数据读.适用于少量数据的读写。如批量和高速数据传输，建议使用USB20Jtag_ByteReadDR
-//状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
+// 位带方式JTAG DR数据读.适用于少量数据的读写。如批量和高速数据传输，建议使用USB20Jtag_ByteReadDR
+// 状态机:Run-Test->Shift-DR..->Exit DR -> Run-Test
 BOOL	WINAPI	CH347Jtag_BitReadDR(ULONG			iIndex,				// 指定设备序号									
 									PULONG    	    oReadBitLength,		// 指向长度单元,返回后为实际读取的字节长度
 									PVOID			oReadBitBuffer );   // 指向一个足够大的缓冲区,用于保存读取的数据
 
 /***************GPIO********************/
-//获取CH347的GPIO方向和引脚电平值
+// 获取CH347的GPIO方向和引脚电平值
 BOOL WINAPI CH347GPIO_Get(ULONG iIndex,       // 指定设备序号
-						  UCHAR *iDir,        // 引脚方向:GPIO0-7对应位0-7.0：输入；1：输出
-						  UCHAR *iData);      // GPIO0电平:GPIO0-7对应位0-7,0：低电平；1：高电平)
+						  UCHAR *iDir,        // 引脚方向:GPIO0-7对应位0-7,	0=输入；1=输出
+						  UCHAR *iData);      // GPIO0电平:GPIO0-7对应位0-7,0=低电平；1=高电平)
 
-//设置CH347的GPIO方向和引脚电平值 
+// 设置CH347的GPIO方向和引脚电平值 
 BOOL WINAPI CH347GPIO_Set(ULONG iIndex,        // 指定设备序号
 						  UCHAR iEnable,       // 数据有效标志:对应位0-7,对应GPIO0-7.
 						  UCHAR iSetDirOut,    // 设置I/O方向,某位清0则对应引脚为输入,某位置1则对应引脚为输出.GPIO0-7对应位0-7.
@@ -487,23 +503,23 @@ BOOL	WINAPI	CH347ReadInter(ULONG			iIndex,      // 指定设备序号
 // 放弃中断数据读操作
 BOOL	WINAPI	CH347AbortInter(ULONG			iIndex );  // 指定设备序号
 
-//进入IAP固件升级模式
+// 进入IAP固件升级模式
 BOOL	WINAPI	CH347StartIapFwUpate(ULONG    iIndex,
 									 ULONG	  FwSize); // 固件长度
 
 /**************HID/VCP串口**********************/
-//打开串口
-HANDLE WINAPI CH347Uart_Open(ULONG iIndex);
+// 打开串口
+HANDLE WINAPI CH347Uart_Open(ULONG iIndex);		// 指定设备序号
 
-//关闭串口
-BOOL WINAPI CH347Uart_Close(ULONG iIndex);
+// 关闭串口
+BOOL WINAPI CH347Uart_Close(ULONG iIndex);		// 指定设备序号
 
 BOOL	WINAPI	CH347Uart_SetDeviceNotify(												// 设定设备事件通知程序
 										  ULONG					iIndex,					// 指定设备序号,0对应第一个设备
 										  PCHAR					iDeviceID,				// 可选参数,指向字符串,指定被监控的设备的ID,字符串以\0终止
 										  mPCH347_NOTIFY_ROUTINE	iNotifyRoutine );   // 指定设备事件回调程序,为NULL则取消事件通知,否则在检测到事件时调用该程序
 
-//获取UART硬件配置
+// 获取UART硬件配置
 BOOL    WINAPI  CH347Uart_GetCfg(ULONG   iIndex,       // 指定设备序号
 								 PULONG  BaudRate,     // 波特率
 								 PUCHAR  ByteSize,     // 数据位数(5,6,7,8,16)
@@ -511,7 +527,7 @@ BOOL    WINAPI  CH347Uart_GetCfg(ULONG   iIndex,       // 指定设备序号
 								 PUCHAR  StopBits,     // 停止位数(0：1停止位; 1：1.5停止位; 2：2停止位)；
 								 PUCHAR  ByteTimeout); // 字节超时
 
-//设置UART配置								   
+// 设置UART配置								   
 BOOL  WINAPI   CH347Uart_Init(ULONG  iIndex,      // 指定设备序号
 							  DWORD  BaudRate,    // 波特率
 							  UCHAR  ByteSize,    // 数据位数(5,6,7,8,16)
@@ -524,56 +540,56 @@ BOOL	WINAPI	CH347Uart_SetTimeout(ULONG			iIndex,         // 指定设备序号
 									 ULONG			iWriteTimeout,  // 指定USB写出数据块的超时时间,以毫秒mS为单位,0xFFFFFFFF指定不超时(默认值)
 									 ULONG			iReadTimeout ); // 指定USB读取数据块的超时时间,以毫秒mS为单位,0xFFFFFFFF指定不超时(默认值)
 
-// 读取数据块
-BOOL  WINAPI   CH347Uart_Read(ULONG			    iIndex,    // 指定设备序号
-								 PVOID			oBuffer,   // 指向一个足够大的缓冲区,用于保存读取的数据
-								 PULONG			ioLength );// 指向长度单元,输入时为准备读取的长度,返回后为实际读取的长度
-// 写出数据块
-BOOL  WINAPI   CH347Uart_Write(ULONG			iIndex,    // 指定设备序号
-								  PVOID			iBuffer,   // 指向一个缓冲区,放置准备写出的数据
-								  PULONG		ioLength );// 指向长度单元,输入时为准备写出的长度,返回后为实际写出的长度
+// 串口读
+BOOL  WINAPI   CH347Uart_Read(ULONG			iIndex,    // 指定设备序号
+							  PVOID			oBuffer,   // 指向一个足够大的缓冲区,用于保存读取的数据
+							  PULONG	    ioLength );// 指向长度单元,输入时为准备读取的长度,返回后为实际读取的长度
+// 串口写
+BOOL  WINAPI   CH347Uart_Write(ULONG		iIndex,    // 指定设备序号
+							   PVOID		iBuffer,   // 指向一个缓冲区,放置准备写出的数据
+							   PULONG		ioLength );// 指向长度单元,输入时为准备写出的长度,返回后为实际写出的长度
 
-//查询读缓冲区有多少字节未取
+// 查询读缓冲区有多少字节未取（适用于HID模式串口）
 BOOL WINAPI CH347Uart_QueryBufUpload(ULONG			iIndex,        // 指定设备序号
 									 LONGLONG       *RemainBytes); // 读缓冲区未取字节数
 
-//获取设备信息
+// 获取设备信息
 BOOL WINAPI CH347Uart_GetDeviceInfor(ULONG iIndex,mDeviceInforS *DevInformation);
 
-// 设置USB数据读写的超时
-BOOL	WINAPI	CH347Uart_SetTimeout(ULONG			iIndex,         // 指定设备序号
-									 ULONG			iWriteTimeout,  // 指定USB写出数据块的超时时间,以毫秒mS为单位,0xFFFFFFFF指定不超时(默认值)
-									 ULONG			iReadTimeout ); // 指定USB读取数据块的超时时间,以毫秒mS为单位,0xFFFFFFFF指定不超时(默认值)
-
-/********IIC***********/
+/********I2C***********/
 // I2C设置
 BOOL	WINAPI	CH347I2C_Set(ULONG			iIndex,   // 指定设备序号
 							 ULONG			iMode );  // 指定模式,见下行
-// 位1-位0: I2C接口速度/SCL频率, 00=低速/20KHz,01=标准/100KHz(默认值),10=快速/400KHz,11=高速/750KHz
+// 位0-位2: I2C接口速度/SCL频率, 000=低速/20KHz,001=标准/100KHz(默认值),010=快速/400KHz,011=高速/750KHz,100=低速/50KHz,101=标准/200KHz，110=快速/1MHz
 // 其它保留,必须为0
 
-//Set I2C Clock Stretch
-BOOL	WINAPI	CH347I2C_SetStretch(ULONG iIndex, // 指定设备序号
-									BOOL  iEnable); // I2C Clock Stretch enable, 1:enable,0:disable
+// 设置I2C时钟延展功能
+BOOL	WINAPI	CH347I2C_SetStretch(ULONG			iIndex,   // 指定设备序号
+									BOOL			iEnable); // 0=关闭时钟延展功能（默认关闭）；1=开启时钟延展功能
 
 // 设置硬件异步延时,调用后很快返回,而在下一个流操作之前延时指定毫秒数
 BOOL	WINAPI	CH347I2C_SetDelaymS(ULONG			iIndex,       // 指定设备序号
 									ULONG			iDelay ) ;    // 指定延时的毫秒数
 
- // 处理I2C数据流,2线接口,时钟线为SCL引脚,数据线为SDA引脚
+// 设置I2C引脚驱动模式
+BOOL	WINAPI CH347I2C_SetDriverMode(ULONG			iIndex,		  // 指定设备序号
+									  UCHAR			iMode);		  // 0=开漏模式；1=推挽模式
+
+// 处理I2C数据流,2线接口,时钟线为SCL引脚,数据线为SDA引脚
 BOOL	WINAPI	CH347StreamI2C( ULONG			iIndex,        // 指定设备序号
 							    ULONG			iWriteLength,  // 准备写出的数据字节数
 							    PVOID			iWriteBuffer,  // 指向一个缓冲区,放置准备写出的数据,首字节通常是I2C设备地址及读写方向位
 							    ULONG			iReadLength,   // 准备读取的数据字节数
 							    PVOID			oReadBuffer ); // 指向一个缓冲区,返回后是读入的数据
 
+// 处理I2C数据流,2线接口,时钟线为SCL引脚,数据线为SDA引脚
 BOOL	WINAPI	CH347StreamI2C_RetACK(  // 处理I2C数据流,2线接口,时钟线为SCL引脚,数据线为SDA引脚(准双向I/O),速度约56K字节,并返回主机端获取到的ACK数量
-									  ULONG			iIndex,  // 指定CH341设备序号
+									  ULONG			iIndex,        // 指定设备序号
 									  ULONG			iWriteLength,  // 准备写出的数据字节数
 									  PVOID			iWriteBuffer,  // 指向一个缓冲区,放置准备写出的数据,首字节通常是I2C设备地址及读写方向位
 									  ULONG			iReadLength,   // 准备读取的数据字节数
 									  PVOID			oReadBuffer,   // 指向一个缓冲区,返回后是读入的数据
-									  PULONG		rAckCount);     // 指向读写返回的ACK值
+									  PULONG		rAckCount);    // 指向读写返回的ACK值
 
 #ifndef _CH341_DLL_H
 typedef	enum	_EEPROM_TYPE {// EEPROM型号
@@ -593,7 +609,7 @@ typedef	enum	_EEPROM_TYPE {// EEPROM型号
 } EEPROM_TYPE;
 #endif
 
-// 从EEPROM中读取数据块,速度约56K字节
+// 从EEPROM中读取数据块
 BOOL	WINAPI	CH347ReadEEPROM(ULONG			iIndex,     // 指定设备序号
 								EEPROM_TYPE		iEepromID,  // 指定EEPROM型号
 								ULONG			iAddr,      // 指定数据单元的地址
@@ -606,8 +622,22 @@ BOOL	WINAPI	CH347WriteEEPROM(ULONG			iIndex,     // 指定设备序号
 								 ULONG			iLength,    // 准备写出的数据字节数
 								 PUCHAR			iBuffer );  // 指向一个缓冲区,放置准备写出的数据
 
+//设置第8位时钟低周期延时时间，仅适用于CH347T
+BOOL WINAPI CH347I2C_SetAckClk_DelayuS(ULONG iIndex,	// 指定设备序号
+									   ULONG iDelay);	// 指定延时的微秒数
+
+// 该函数用于查询指定索引的CH339W芯片当前各个接口功能的启用状态。
+// 返回值位定义：
+//    位7 (0x80): USB转JTAG使能状态（1=使能，0=禁用）
+//    位6 (0x40): USB转SPI使能状态（1=使能，0=禁用）
+//    位5 (0x20): USB转UART使能（不带流控）（1=使能，0=禁用）
+//    位4 (0x10): USB转UART流控使能（1=使能，0=禁用）
+//    位3 (0x08): USB转I2C使能状态（1=使能，0=禁用）
+//    位2-位0: 保留位
+UCHAR	WINAPI	CH339GetChipFuncState( ULONG iIndex );	// 指定设备序号
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif		// _CH347_DLL_H
+#endif // _CH347_DLL_H

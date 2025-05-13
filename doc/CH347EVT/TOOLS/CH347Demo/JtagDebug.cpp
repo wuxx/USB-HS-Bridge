@@ -1,13 +1,13 @@
 /*****************************************************************************
-**                      Copyright  (C)  WCH  2001-2023                      **
+**                      Copyright  (C)  WCH  2001-2025                      **
 **                      Web:  http://wch.cn                                 **
 ******************************************************************************
 Abstract:
-  CH347 JTAG API Demo
+  CH347/CH339W JTAG API Demo
 Environment:
     user mode only,VC6.0 and later
 Notes:
-  Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+  Copyright (c) 2025 Nanjing Qinheng Microelectronics Co., Ltd.
 --*/
 
 #include "Main.H"
@@ -211,16 +211,12 @@ BOOL Jtag_DataRW_Bit(BOOL IsRead)
 		DbgPrint("Deivce is not opened.");
 		goto Exit;
 	}
-	if(IsRead) //JTAG read
+	InBitLen = GetDlgItemInt(JtagDlgHwnd,IDC_JtagInBitLen,NULL,FALSE);	
+	if(InBitLen<1)
 	{
-		InBitLen = GetDlgItemInt(JtagDlgHwnd,IDC_JtagInBitLen,NULL,FALSE);	
-		if(InBitLen<1)
-		{
-			DbgPrint("No read length is specified");
-			goto Exit;
-		}
+		DbgPrint("No read length is specified");
+		goto Exit;
 	}
-	else //JTAG write
 	{		
 		BitCount = GetDlgItemText(JtagDlgHwnd,IDC_JtagOutBit,FmtStr,sizeof(FmtStr));
 		OutBitLen = GetDlgItemInt(JtagDlgHwnd,IDC_JtagOutBitLen,NULL,FALSE);	
@@ -266,23 +262,8 @@ BOOL Jtag_DataRW_Bit(BOOL IsRead)
 		}
 	}	
 	BT = GetCurrentTimerVal();
-	if(IsRead)
-	{
-		BitCount = GetDlgItemInt(JtagDlgHwnd,IDC_JtagInBitLen,NULL,FALSE);	
-		if(IsDr)
-			RetVal = CH347Jtag_BitReadDR(JtagDevIndex,&InBitLen,InBuf);
-		else
-			RetVal = CH347Jtag_BitReadIR(JtagDevIndex,&InBitLen,InBuf);
-	}
-	else 
-	{
-		//位带方式
-		//RetVal = JTAG_WriteRead(0,IsDr,BitCount,OutBuf,NULL,NULL);
-		if(IsDr)
-			RetVal = CH347Jtag_BitWriteDR(JtagDevIndex,OutBitLen,OutBuf);
-		else
-			RetVal = CH347Jtag_BitWriteIR(JtagDevIndex,OutBitLen,OutBuf);
-	}
+	RetVal = CH347Jtag_WriteRead(JtagDevIndex, IsDr, OutBitLen, OutBuf, &InBitLen, InBuf);
+	
 	UsedT = GetCurrentTimerVal()-BT;
 		
 	if(InBitLen)
@@ -475,13 +456,15 @@ VOID Jtag_InitWindows()
 
 	{
 		//JTAG速度配置值；有效值为0-5，值越大通信速度越快；
-		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)" 1.875MHz");    //速度0：1.875MHz；
-		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"  3.75MHz");    //速度1： 3.75MHz；
-		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"   7.5MHz");    //速度3：  7.5MHz；
-		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"    15MHz");    //速度4：   15MHz；
-		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"    30MHz");    //速度5：   30MHz；
-		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"    60MHz");    //速度6：   60MHz；
-		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_SETCURSEL,4,0);
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)" 468.75KHz");   //速度0：468.75KHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)" 937.5KHz");    //速度1：937.5KHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)" 1.875MHz");    //速度2：1.875MHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"  3.75MHz");    //速度3： 3.75MHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"   7.5MHz");    //速度4：  7.5MHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"    15MHz");    //速度5：   15MHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"    30MHz");    //速度6：   30MHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"    60MHz");    //速度7：   60MHz；
+		SendDlgItemMessage(JtagDlgHwnd,IDC_JtagClockRate,CB_SETCURSEL,6,0);
 	}	
 	SetEditlInputMode(JtagDlgHwnd,IDC_JtagOut,1);
 	SetEditlInputMode(JtagDlgHwnd,IDC_JtagIn,1);	

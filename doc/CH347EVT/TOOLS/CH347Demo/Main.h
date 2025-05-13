@@ -1,15 +1,15 @@
 /*****************************************************************************
-**                      Copyright  (C)  WCH  2001-2023                      **
+**                      Copyright  (C)  WCH  2001-2025                      **
 **                      Web:  http://wch.cn                                 **
 ******************************************************************************
 Abstract:
   CH347DLL API DEMO
-  高速USB(480Mbps)转接芯片CH347,基于480Mbps高速USB总线扩展UART、SPI、I2C、JTAG，
+  高速USB(480Mbps)转接芯片CH347/CH339W,基于480Mbps高速USB总线扩展UART、SPI、I2C、JTAG，
   平台驱动齐全，用于USB转双串口、USB转SPI、USB转I2C、USB转JTAG、CPU调试器、FPGA下载器、烧录器等。
 Environment:
     user mode only,VC6.0 and later
 Notes:
-  Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+  Copyright (c) 2025 Nanjing Qinheng Microelectronics Co., Ltd.
   SPDX-License-Identifier: Apache-2.0
 Revision History:
   4/3/2022: TECH30

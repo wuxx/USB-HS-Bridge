@@ -1,14 +1,14 @@
 /*****************************************************************************
-**                      Copyright  (C)  WCH  2001-2023                      **
+**                      Copyright  (C)  WCH  2001-2025                      **
 **                      Web:  http://wch.cn                                 **
 ******************************************************************************
 Abstract:
-  CH347 SPI/I2C接口数据流操作
+  CH347/CH339W SPI/I2C接口数据流操作
 
 Environment:
     user mode only,VC6.0 and later
 Notes:
-  Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+  Copyright (c) 2025 Nanjing Qinheng Microelectronics Co., Ltd.
 Revision History:
   4/3/2022: TECH30
 --*/
@@ -18,7 +18,7 @@ Revision History:
 #define WM_CH347DevArrive WM_USER+10         //设备插入通知事件,窗体进程接收
 #define WM_CH347DevRemove WM_USER+11         //设备拔出通知事件,窗体进程接收
 
-#define CH347DevID "VID_1A86&PID_55D\0"  //监视CH347 USB插拔动作,插入时可自动打开设备;关闭时自动关闭设备
+#define CH347DevID "VID_1A86&PID_55\0"  //监视CH347&CH339W USB插拔动作,插入时可自动打开设备;关闭时自动关闭设备
 
 //如需准确监测各模式下串口插拔动作，可写如下完整USBID。因DEMO汇总了所有模式，所以只需取ID共同部分
 //设置指定设备的USB插拔监测: CH347SetDeviceNotify(,USBID_Mode???,)
@@ -83,6 +83,8 @@ BOOL OpenDevice()
 	DevIsOpened = (CH347OpenDevice(SpiI2cGpioDevIndex) != INVALID_HANDLE_VALUE);
 	CH347SetTimeout(SpiI2cGpioDevIndex,500,500);
 	DbgPrint(">>Open the device...%s",DevIsOpened?"Success":"Failed");
+
+	CH347InitSpi();
 Exit:
 	return DevIsOpened;
 }
@@ -139,6 +141,10 @@ BOOL CH347InitSpi()
 			RetVal = CH347SPI_SetFrequency(SpiI2cGpioDevIndex, KHZ(SpiFrequency));
 		else 
 			RetVal = CH347SPI_SetFrequency(SpiI2cGpioDevIndex, MHZ(SpiFrequency));
+	} 
+	else 
+	{
+		RetVal = CH347SPI_SetFrequency(SpiI2cGpioDevIndex, 0);
 	}
 
 	// 设置SPI 数据位
@@ -147,6 +153,8 @@ BOOL CH347InitSpi()
 
 	RetVal = CH347SPI_Init(SpiI2cGpioDevIndex,&SpiCfg);
 
+	CH347SPI_GetCfg(SpiI2cGpioDevIndex, &TestSpiCfg);
+	DbgPrint("iByteOrder:%02x.\n", TestSpiCfg.iByteOrder);
 	DbgPrint("CH347SPI_Init %s",RetVal?"succ":"failure");
 	
 	return RetVal;
@@ -167,9 +175,8 @@ BOOL CH347InitI2C()
 	RetVal = CH347I2C_Set(SpiI2cGpioDevIndex, iMode);
 	DbgPrint("CH347I2C Set clock %s",RetVal ? "succ" : "failure");
 
-	RetVal = CH347I2C_SetStretch(SpiI2cGpioDevIndex, isStrentch);
 	DbgPrint("CH347 I2C set stetching %s",RetVal ? "succ" : "failure");
-	
+
 	if (I2CDelayMs > 0)
 		RetVal = CH347I2C_SetDelaymS(SpiI2cGpioDevIndex, I2CDelayMs);
 	
@@ -204,7 +211,6 @@ BOOL CH347SpiCsCtrl()
 			iIsAutoDeativeCS = (iIsAutoDeativeCS<<8)&0xFF00;
 			iActiveDelay = (iActiveDelay<<16)&0xFFFF0000;
 			iDelayDeactive = (iDelayDeactive<<16)&0xFFFF0000;
-
 		}
 		else 
 		{
@@ -225,7 +231,7 @@ BOOL CH347SpiStream(ULONG CmdCode)
 {
 	ULONG SpiOutLen,SpiInLen,FlashAddr=0,i,StrLen;
 	UCHAR InBuf[4096] = "",OutBuf[4096] = "";
-	CHAR FmtStr[4096*3*6] = "",ValStr[16]="",FmtStr2[4096*3];
+	CHAR FmtStr[4096*3*6] = "",ValStr[16]="",FmtStr2[4096*3*6];
 	double BT,UseT;
 	UCHAR ChipSelect;
 	BOOL RetVal = FALSE;
@@ -262,7 +268,7 @@ BOOL CH347SpiStream(ULONG CmdCode)
 			return FALSE;
 		}
 		memcpy(InBuf,OutBuf,SpiOutLen);
-		RetVal = CH347StreamSPI4(SpiI2cGpioDevIndex,ChipSelect,SpiOutLen,InBuf);
+		RetVal = CH347StreamSPI4(SpiI2cGpioDevIndex,0x80,SpiOutLen,InBuf);
 		sprintf(FmtStr,"Cmd%X(StreamSpi) %s.",CmdCode,RetVal?"succ":"failure");
 	}
 	else if(CmdCode == 0xC3)
@@ -272,8 +278,10 @@ BOOL CH347SpiStream(ULONG CmdCode)
 			DbgPrint("SPI read length not specified");
 			return FALSE;
 		}
-		SpiOutLen = 0;
-		RetVal = CH347SPI_Read(SpiI2cGpioDevIndex,ChipSelect,4,&SpiInLen,InBuf);
+		if (SpiOutLen < 1)
+			SpiOutLen = 0;
+		memcpy(InBuf, OutBuf, SpiOutLen);
+		RetVal = CH347SPI_Read(SpiI2cGpioDevIndex,ChipSelect,SpiOutLen,&SpiInLen,InBuf);
 		sprintf(FmtStr,"Cmd%X(StreamSpiBulkRead) %s.",CmdCode,RetVal?"succ":"failure");
 	}
 	else if(CmdCode == 0xC4)
@@ -382,8 +390,10 @@ BOOL I2C_WriteRead()
 VOID EnableButtonEnable()
 {
 	if(!DevIsOpened)
+	{
 		SpiIsCfg = FALSE;
-
+		I2CIsCfg = FALSE;
+	}
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_CMD_InitSPI),DevIsOpened);
 
 	//更新打开/关闭设备按钮状态
@@ -403,11 +413,10 @@ VOID EnableButtonEnable()
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_WriteFormFile),SpiIsCfg);
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_FlashVerify),SpiIsCfg);
 	
-
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_CMD_SPIStream),SpiIsCfg);	
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_CMD_BulkSpiIn),SpiIsCfg);	
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_CMD_BulkSpiOut),SpiIsCfg);	
-	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_CMD_I2C_RW),SpiIsCfg);
+	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_CMD_I2C_RW),I2CIsCfg);
 
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_SetGpio),DevIsOpened);
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_GetGpio),DevIsOpened);
@@ -440,6 +449,10 @@ ULONG EnumDevice()
 	CHAR tem[256] = "";
 	mDeviceInforS DevInfor = {0};
 
+	UCHAR iDriverVer = 0;
+	UCHAR iDLLVer = 0;
+	UCHAR ibcdDevice = 0;
+	UCHAR iChipType = 0;
 	SendDlgItemMessage(SpiI2cGpioDebugHwnd,IDC_ObjList,CB_RESETCONTENT,0,0);
 	for(i=0;i<16;i++)
 	{
@@ -447,6 +460,8 @@ ULONG EnumDevice()
 		{
 			oLen = sizeof(USB_DEVICE_DESCRIPTOR);
 			CH347GetDeviceInfor(i,&DevInfor);
+			
+			DbgPrint("M:%s\nP:%s\n", DevInfor.ManufacturerString, DevInfor.ProductString);//SN:%s\n
 
 			if(DevInfor.ChipMode == 3) //模式3此接口为JTAG/I2C
 				continue;
@@ -455,7 +470,10 @@ ULONG EnumDevice()
 			SendDlgItemMessage(SpiI2cGpioDebugHwnd,IDC_ObjList,CB_ADDSTRING,0,(LPARAM)(LPCTSTR)tem);		
 			memcpy(&SpiI2cDevInfor[DevCnt],&DevInfor,sizeof(DevInfor));
 			DevCnt++;
-		}
+
+			CH347GetVersion(i, &iDriverVer, &iDLLVer, &ibcdDevice, &iChipType);
+			DbgPrint("DV:%02x  DLLV:%02x BCD:%02x CT:%02x.\n", iDriverVer, iDLLVer, ibcdDevice, iChipType);
+		} 
 		CH347CloseDevice(i);
 	}
 	if(DevCnt)
@@ -570,29 +588,15 @@ BOOL APIENTRY DlgProc_SpiUartI2cDbg(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			SendDlgItemMessage(hWnd,IDC_Int1PinSel,CB_SETCURSEL,1,0);
 			CheckDlgButton(hWnd,IDC_Int0Enable,BST_CHECKED);
 
-			if (g_isChinese) 
-			{
-				//00:下降沿触发; 01:上升沿触发; 02:双边沿触发;
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"下降沿触发");
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"上升沿触发");
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"双边沿触发");
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_SETCURSEL,0,0);
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"下降沿触发");
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"上升沿触发");
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"双边沿触发");
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_SETCURSEL,1,0);	
-			} else
-			{
-				//00:Falling edge trigger; 01:Rising edge trigger; 02:Double edge trigger;
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Falling edge trigger");
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Rising edge trigger");
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Double edge trigger");
-				SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_SETCURSEL,0,0);
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Falling edge trigger");
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Rising edge trigger");
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Double edge trigger");
-				SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_SETCURSEL,1,0);	
-			}		
+			//00:下降沿触发; 01:上升沿触发; 02:双边沿触发;
+			SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"下降沿触发");
+			SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"上升沿触发");
+			SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"双边沿触发");
+			SendDlgItemMessage(hWnd,IDC_Int0TrigMode,CB_SETCURSEL,0,0);
+			SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"下降沿触发");
+			SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"上升沿触发");
+			SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"双边沿触发");
+			SendDlgItemMessage(hWnd,IDC_Int1TrigMode,CB_SETCURSEL,1,0);			
 
 			SetEditlInputMode(hWnd,IDC_SpiOut,1);		
 			SetEditlInputMode(hWnd,IDC_SpiIn,1);	
@@ -608,11 +612,13 @@ BOOL APIENTRY DlgProc_SpiUartI2cDbg(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			SendDlgItemMessage(hWnd,IDC_I2CCfg_Clock,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"50KHz");
 			SendDlgItemMessage(hWnd,IDC_I2CCfg_Clock,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"200KHz");
 			SendDlgItemMessage(hWnd,IDC_I2CCfg_Clock,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"1MHz");
-			SendDlgItemMessage(hWnd,IDC_I2CCfg_Clock,CB_SETCURSEL,0,3);
+			SendDlgItemMessage(hWnd,IDC_I2CCfg_Clock,CB_SETCURSEL,1,0);
 
 			SendDlgItemMessage(hWnd,IDC_I2CCfg_SclStretch,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Enable");
 			SendDlgItemMessage(hWnd,IDC_I2CCfg_SclStretch,CB_ADDSTRING,0,(LPARAM) (LPCTSTR)"Disable");
-			SendDlgItemMessage(hWnd,IDC_I2CCfg_SclStretch,CB_SETCURSEL,0,1);
+			SendDlgItemMessage(hWnd,IDC_I2CCfg_SclStretch,CB_SETCURSEL,1,0);
+
+			SetDlgItemInt(hWnd,IDC_I2CCfg_Delay, 0, 0);
 			}
 
 			// 独立设置SPI时钟频率
@@ -797,6 +803,7 @@ BOOL APIENTRY DlgProc_SpiUartI2cDbg(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			break;
 		case IDC_I2CInit:
 			I2CIsCfg = CH347InitI2C();			// 单独的初始化I2C操作
+			EnableButtonEnable();
 			break;
 		case IDC_CMD_SPICsCtrl:
 			CH347SpiCsCtrl();

@@ -1,18 +1,14 @@
 /*****************************************************************************
-**                      Copyright  (C)  WCH  2001-2023                      **
+**                      Copyright  (C)  WCH  2001-2025                      **
 **                      Web:  http://wch.cn                                 **
 ******************************************************************************
 Abstract:
   基于SPI接口的FLASH操作函数，提供SPI FLASH 型号识别、块读、块写、块擦除等函数。
 
-  当前源码方案,基于CH32V305 MCU实现的usb2.0(480M high speed)  to SPI，可用于构
-  建自定义USB高速FASH编程器等产品。
-  方案源代码包含MCU固件、USB2.0高速(480M)设备通用驱动(CH372DRV)、上位机例程。
-  当前例程为自定义通讯协议,SPI传输速度可达2MB/S
 Environment:
     user mode only,VC6.0 and later
 Notes:
-  Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+  Copyright (c) 2025 Nanjing Qinheng Microelectronics Co., Ltd.
 Revision History:
   4/3/2022: TECH30
 --*/
@@ -22,7 +18,7 @@ Revision History:
 
 /******************************************************************************/
 /* 头文件包含 */
-//#include <stdio.h>
+// #include <stdio.h>
 //#include <string.h>
 
 #define UINT8V UCHAR

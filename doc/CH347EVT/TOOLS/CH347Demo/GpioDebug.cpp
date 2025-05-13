@@ -1,14 +1,14 @@
 /*****************************************************************************
-**                      Copyright  (C)  WCH  2001-2023                      **
+**                      Copyright  (C)  WCH  2001-2025                      **
 **                      Web:  http://wch.cn                                 **
 ******************************************************************************
 Abstract:
-  基于CH347 GPIO接口函数操作应用示例
+  基于CH347/CH339W GPIO接口函数操作应用示例
 
 Environment:
     user mode only,VC6.0 and later
 Notes:
-  Copyright (c) 2023 Nanjing Qinheng Microelectronics Co., Ltd.
+  Copyright (c) 2025 Nanjing Qinheng Microelectronics Co., Ltd.
 Revision History:
   4/3/2022: TECH30
 --*/
@@ -31,7 +31,8 @@ ULONG GpioEnCtrID[8] = {IDC_EnSet_Gpio0,IDC_EnSet_Gpio1,IDC_EnSet_Gpio2,IDC_EnSe
 ULONG GpioDirCtrID[8] = {IDC_Dir_Gpio0,IDC_Dir_Gpio1,IDC_Dir_Gpio2,IDC_Dir_Gpio3,IDC_Dir_Gpio4,IDC_Dir_Gpio5,IDC_Dir_Gpio6,IDC_Dir_Gpio7};
 //GPIO电平控件ID
 ULONG GpioStaCtrID[8] = {IDC_Val_Gpio0,IDC_Val_Gpio1,IDC_Val_Gpio2,IDC_Val_Gpio3,IDC_Val_Gpio4,IDC_Val_Gpio5,IDC_Val_Gpio6,IDC_Val_Gpio7};
-
+//GPIO中断统计
+ULONG GpioTriCount[8] = {0};
 //GPIO设置
 BOOL Gpio_Set()
 {
@@ -128,7 +129,7 @@ BOOL IntService(ULONG IntTrigGpioN)
 	for(i=0;i<8;i++)
 	{
 		if( IntTrigGpioN & (1<<i) )//中断GPIO脚号
-			DbgPrint("Gpio%d interrupt(%X)",i,IntTrigGpioN);
+			DbgPrint("Gpio%d interrupt(%X), Count:%d",i,IntTrigGpioN, GpioTriCount[i]);
 	}
 	return TRUE;
 }
@@ -146,7 +147,10 @@ VOID	CALLBACK	CH347_INT_ROUTINE(PUCHAR			iStatus )  // 中断状态数据,参考下面的位
 	for(i=0;i<8;i++)
 	{
 		if( iStatus[i]&0x08 ) //中断GPIO脚号
+		{
 			IntTrigGpioN |= (1<<i);			
+			GpioTriCount[i] += 1;
+		}
 	}
 	PostMessage(SpiI2cGpioDebugHwnd,WM_CH347Int,IntTrigGpioN,0);
 }
@@ -200,12 +204,18 @@ BOOL IntEnable()
 //关闭中断
 BOOL IntDisable()
 {
+	ULONG i;
 	{
 		//指定中断服务程序,为NULL则取消中断服务,否则在中断时调用该程序
 		IntIsEnable = CH347SetIntRoutine(SpiI2cGpioDevIndex,0xFF,0xFF,0xFF,0xFF,NULL );
 		DbgPrint("CH347 interrupt notify routine cancell %s ",IntIsEnable?"succ":"false");
 
 		IntIsEnable = FALSE;
+
+		for (i = 0; i < 8; i++)
+		{
+			GpioTriCount[i] = 0;
+		}
 	}
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_EnableIntNotify),TRUE);
 	EnableWindow(GetDlgItem(SpiI2cGpioDebugHwnd,IDC_DisableIntNotify),FALSE);
