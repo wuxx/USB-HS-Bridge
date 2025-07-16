@@ -1,0 +1,227 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(中华人民共和国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG  22, 17, 168, 75
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "System"
+BEGIN
+    ICON            IDI_Main,IDC_MYICON,14,9,20,20
+    LTEXT           "PramFrame Version 1.0",IDC_STATIC,49,10,91,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2006",IDC_STATIC,49,20,119,8
+    DEFPUSHBUTTON   "OK",IDOK,61,39,30,11,WS_GROUP
+END
+
+IDD_SPI_Parallel_Demo DIALOGEX 0, 0, 525, 460
+STYLE DS_SETFONT | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "USB 2.0 SPI&Parallel Demo"
+FONT 9, "宋体", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_DbgShow,17,310,491,120,ES_MULTILINE | ES_OEMCONVERT | ES_WANTRETURN | NOT WS_BORDER | WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "清空输出信息",IDC_ClearDbgShow,441,433,67,16
+    PUSHBUTTON      "单次写",IDC_Write,433,125,67,16
+    GROUPBOX        "读",IDC_STATIC,17,190,491,112
+    EDITTEXT        IDC_WriteData,26,127,403,53,ES_MULTILINE | ES_UPPERCASE | ES_WANTRETURN | NOT WS_BORDER | WS_VSCROLL,WS_EX_STATICEDGE
+    RTEXT           "写长度:",IDC_STATIC,26,98,33,8
+    EDITTEXT        IDC_WriteLen,61,96,33,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "关闭设备",IDC_CloseDevice,433,40,67,16
+    LTEXT           "设备列表:",IDC_STATIC,26,11,36,8
+    COMBOBOX        IDC_DevList,70,9,353,113,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "刷新设备列表",IDC_RefreshDevList,433,7,67,16
+    PUSHBUTTON      "打开设备",IDC_OpenDevice,433,23,67,16
+    PUSHBUTTON      "单次读",IDC_Read,433,232,67,16
+    EDITTEXT        IDC_ReadData,26,232,403,63,ES_MULTILINE | ES_UPPERCASE | ES_WANTRETURN | NOT WS_BORDER | WS_VSCROLL,WS_EX_STATICEDGE
+    RTEXT           "读长度:",IDC_STATIC,26,203,30,8
+    EDITTEXT        IDC_ReadLen,60,201,37,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "重置计数",IDC_ResetTRxCnt,353,57,67,16
+    CONTROL         "保存至文件",IDC_EnAutoRecvToFile,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,237,216,52,10
+    PUSHBUTTON      "自动读",IDC_BeginAutoRx,433,250,67,16
+    PUSHBUTTON      "发送文件",IDC_BatchWrite,433,141,67,16
+    GROUPBOX        "写",IDC_STATIC,17,86,491,99
+    EDITTEXT        IDC_DevInfor,26,26,395,12,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "实时数据显示",IDC_EnAutoRecvShow,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,202,69,10
+    CONTROL         "开启插入后自动打开和移除后自动关闭",IDC_EnablePnPAutoOpen,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,26,43,149,9
+    EDITTEXT        IDC_PnPStatus,182,41,239,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "工作模式:",IDC_STATIC,26,61,37,8
+    COMBOBOX        IDC_WorkMode,70,59,133,116,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "切换工作模式",IDC_SwithWorkMode,271,57,67,16
+    CONTROL         "掉电保存",IDC_SaveMode,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,212,60,56,9
+    EDITTEXT        IDC_RxStatistics,320,202,177,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_UploadBufPktSize,180,215,53,12,ES_AUTOHSCROLL
+    LTEXT           "轮询包大小(字节):",IDC_STATIC,109,217,69,8
+    EDITTEXT        IDC_TxStatistics,320,96,177,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_STATICEDGE
+    CONTROL         "启用内部缓冲下传",IDC_EnableBufDown,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,101,98,77,8
+    CONTROL         "启用内部缓冲上传",IDC_EnableBufUpload,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,26,217,77,8
+    EDITTEXT        IDC_DnPktCnt,225,96,63,12,ES_AUTOHSCROLL
+    LTEXT           "缓存包数:",IDC_STATIC,187,98,37,8
+    PUSHBUTTON      "复位USB接口",IDC_ResetDevice,433,57,67,16
+    CONTROL         "数据检验(0x00-0xFF)",IDC_EnableRxDataCheck0,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,180,202,89,10
+    EDITTEXT        IDC_TxFilePath,91,112,225,12,ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,17,1,491,79
+    EDITTEXT        IDC_RxFilePath,292,215,205,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "选择发送文件",IDC_SelTxFile,27,111,61,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_SPI_Parallel_Demo, DIALOG
+    BEGIN
+        RIGHTMARGIN, 524
+        BOTTOMMARGIN, 459
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_Main                ICON                    "Main.ICO"
+IDI_SMALL               ICON                    "small.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_PRAMFRAME MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ...",                  IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "http://wch.cn"
+            VALUE "FileDescription", "CH346Demo"
+            VALUE "FileVersion", "1, 0, 0, 0"
+            VALUE "InternalName", "CH346Demo"
+            VALUE "LegalCopyright", "Copyright WCH 2024"
+            VALUE "OriginalFilename", "CH346Demo.exe"
+            VALUE "ProductName", "CH346Demo"
+            VALUE "ProductVersion", "1, 0, 0, 0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_APP_TITLE           "PramFrame"
+    IDS_HELLO               "Hello World!"
+    IDC_PRAMFRAME           "PRAMFRAME"
+END
+
+#endif    // 中文(中华人民共和国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
