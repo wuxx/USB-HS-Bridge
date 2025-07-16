@@ -4,7 +4,7 @@ USB-HS-Bridge
 * [USB-HS-Bridge Introduce](#usb-hs-bridge-introduce) 
 * [Features](#Features)
 * [Work Mode](#work-mode)
-* [IO Level Mode](#io-level-mode)
+* [DIP Switch Config](#dip-switch-config)
 * [How-to-Use](#how-to-use)
 * [Product Link](#Product-Link)
 * [Reference](#Reference)
@@ -28,11 +28,11 @@ mode|  M2  | detail |
 1   |  OFF | UART0 + SPI Slave             |
 2   |  ON  | UART0 + UART1                 |
 
-# Work Mode
+# DIP Switch Config
 DIP switch 1 is used to configure the work mode, and DIP switches 2-5 are used to configure the IO level. Note that DIP switches 2-5 are four-choice switches. When one switch is turned ON, the others must be turned OFF.
 switch|  desc | detail |
 ------|-------|--------|
-1     |  M2   | ON to switches to mode 2, OFF to switches to mode 0 or mode 1. Modes 0 and 1 can be dynamically configured by the host software |
+1     |  M2   | ON to switches to mode 2, OFF to switches to mode 0 or mode 1. Mode 0 and 1 can be dynamically configured by the host software |
 2     |  VREF | IO level is configured as VREF and provided by an external pin|
 3     |  1V8  | IO level is configured as 1V8|
 4     |  2V5  | IO level is configured as 2V5|
