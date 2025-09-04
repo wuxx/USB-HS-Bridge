@@ -43,7 +43,8 @@ switch|  desc | detail |
 there is a test demo under doc/CH346EVT/EVT/TOOLS/PC/CH346Demo/ for test with source code.
 
 # Product Link
-[USB-HS-Bridge Board](https://www.aliexpress.com/item/1005004685449797.html?spm=5261.ProductManageOnline.0.0.158c4edffnRuaN)
+[Aliexpress](https://www.aliexpress.com/item/1005004685449797.html?spm=5261.ProductManageOnline.0.0.158c4edffnRuaN)  
+[Tindie](https://www.tindie.com/products/johnnywu/ch346-development-board)
 
 # Reference
 ### WCH

@@ -45,7 +45,8 @@ for openocd support,  please reference WCH official repo https://github.com/WCHS
 
 
 # Product Link
-[USB-HS-Bridge Board](https://www.aliexpress.com/item/1005004685449797.html?spm=5261.ProductManageOnline.0.0.158c4edffnRuaN)
+[Aliexpress](https://www.aliexpress.com/item/1005004685449797.html?spm=5261.ProductManageOnline.0.0.158c4edffnRuaN)  
+[Tindie](https://www.tindie.com/products/johnnywu/ch347-development-board)
 
 # Reference
 ### WCH
