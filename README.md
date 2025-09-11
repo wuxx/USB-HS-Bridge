@@ -10,7 +10,7 @@ USB-HS-Bridge
 
 
 # USB-HS-Bridge Introduce
-USB-HS-Bridge is a debug tool made by MuseLab based on WCH's CH347T/CH347F With USB 2.0 High Speed, it support USB-to-I2C/SPI/UART/JTAG/GPIO, can be used to operate various devices include MCU/DSP/FPGA/CPLD/EEPROM/SPI-Flash/LCD...
+USB-HS-Bridge is a debug tool made by MuseLab based on WCH's CH347T/CH347F/[CH346C](./README_CH346.md) With USB 2.0 High Speed, it support USB-to-I2C/SPI/UART/JTAG/GPIO, can be used to operate various devices include MCU/DSP/FPGA/CPLD/EEPROM/SPI-Flash/LCD...
 ![1](https://github.com/wuxx/USB-HS-Bridge/blob/master/doc/1.jpg)
 
 # CH347T
